@@ -177,24 +177,6 @@ make logs           # Ver logs
 make -f docker/Makefile prod-deploy    # Despliegue completo
 make -f docker/Makefile prod-monitor   # Monitorear servicios
 ```
-
-### Instalación Local
-
-```bash
-# Clonar el repositorio
-git clone https://github.com/tu-usuario/crystodolar-frontend.git
-cd crystodolar-frontend
-
-# Instalar dependencias
-pnpm install
-
-# Configurar variables de entorno
-cp .env.example .env.local
-
-# Ejecutar en modo desarrollo
-pnpm dev
-```
-
 ### Variables de Entorno
 
 ```env
@@ -368,9 +350,9 @@ vercel --prod
 ### Variables de Entorno en Vercel
 
 ```env
-NEXT_PUBLIC_API_URL=https://api.crystodolar.com
-NEXT_PUBLIC_BCV_API_KEY=tu_api_key_bcv
-NEXT_PUBLIC_BINANCE_API_KEY=tu_api_key_binance
+NEXT_PUBLIC_API_URL=https://crystodolar-api-production.up.railway.app/
+NEXT_PUBLIC_BCV_API_KEY=tu_api_key_bcv (opcional)
+NEXT_PUBLIC_BINANCE_API_KEY=tu_api_key_binance (opcional)
 ```
 
 ### Otros Proveedores
@@ -457,21 +439,6 @@ Para información detallada sobre Docker, consulta:
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 🙏 Agradecimientos
-
-- **Next.js Team** por el framework increíble
-- **Vercel** por la plataforma de despliegue
-- **Tailwind CSS** por el sistema de utilidades
-- **shadcn/ui** por los componentes base
-- **Comunidad Venezolana** por el feedback y sugerencias
-
-## 📞 Contacto
-
-- **Desarrollador**: [Tu Nombre]
-- **Email**: [tu-email@ejemplo.com]
-- **GitHub**: [@tu-usuario]
-- **LinkedIn**: [Tu Perfil]
 
 ---
 
