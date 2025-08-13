@@ -27,12 +27,6 @@ export function StatsOverview() {
     ? rates.reduce((acc, rate) => acc + rate.variation, 0) / rates.length 
     : 0
 
-  // Encontrar la cotización más alta y más baja
-  const highestRate = rates.reduce((prev, current) => 
-    prev.sell > current.sell ? prev : current, rates[0])
-  const lowestRate = rates.reduce((prev, current) => 
-    prev.sell < current.sell ? prev : current, rates[0])
-
   const stats = [
     {
       title: 'USDT BCV',

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo } from 'react'
-import { TrendingUp, TrendingDown, Minus, DollarSign, Building2, Calculator, Globe, InfoIcon, X } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { TrendingUp, TrendingDown, Minus, DollarSign, Building2, Calculator, Globe, InfoIcon } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { CryptoRate } from '@/types/currency'
-import { formatBolivares, formatVariation, getVariationColor } from '@/lib/crypto-data'
+import { formatVariation } from '@/lib/crypto-data'
 import { CalculatorModal } from '@/components/calculator-modal'
 
 interface CurrencyCardProps {
@@ -22,8 +22,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   const [showCalc, setShowCalc] = useState(false)
   const infoRef = useRef<HTMLDivElement | null>(null)
   
-  // Generar tiempo aleatorio solo una vez para evitar cambios al hacer clic
-  const minutesAgo = useMemo(() => Math.floor(Math.random() * 20 + 1), [])
+
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       if (infoRef.current && !infoRef.current.contains(e.target as Node)) {

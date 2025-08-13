@@ -1,4 +1,4 @@
-import { Heart, Github, Linkedin, ExternalLink } from 'lucide-react'
+import { Heart, Linkedin } from 'lucide-react'
 
 /**
  * Componente Footer de CrystoDolar

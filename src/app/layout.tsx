@@ -33,15 +33,6 @@ export default function RootLayout({
             richColors 
             closeButton
             duration={3000}
-            toastOptions={{
-              success: {
-                style: {
-                  background: '#10b981',
-                  color: 'white',
-                  border: '1px solid #059669'
-                }
-              }
-            }}
           />
         </div>
       </body>

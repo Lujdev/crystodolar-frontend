@@ -1,15 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-
 /**
  * Componente de gráfica histórica de cotizaciones
  * Muestra la evolución temporal de las cotizaciones USDT/Bs
  * Incluye datos de BCV y Binance P2P para comparación
  */
 export function HistoricalChart() {
-  const [selectedPeriod, setSelectedPeriod] = useState('1D')
-
   // Datos simulados para la gráfica
   const generateChartData = () => {
     const points = 24 // 24 horas de datos
