@@ -103,10 +103,80 @@ CrystoDolar es una aplicación web moderna desarrollada en Next.js que proporcio
 
 ## 🚀 Instalación y Configuración
 
-### Prerrequisitos
+### Opción 1: Instalación Local (Tradicional)
+
+#### Prerrequisitos
 - **Node.js** 18.17 o superior
 - **pnpm** (recomendado) o npm
 - **Git** para clonar el repositorio
+
+#### Instalación Local
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/tu-usuario/crystodolar-frontend.git
+cd crystodolar-frontend
+
+# Instalar dependencias
+pnpm install
+
+# Configurar variables de entorno
+cp .env.example .env.local
+
+# Ejecutar en modo desarrollo
+pnpm dev
+```
+
+### Opción 2: Docker (Recomendado)
+
+#### Prerrequisitos
+- **Docker** 20.10+ ([Instalar Docker](https://docs.docker.com/get-docker/))
+- **Docker Compose** 2.0+ ([Instalar Docker Compose](https://docs.docker.com/compose/install/))
+- **Git** para clonar el repositorio
+
+#### Instalación con Docker
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/tu-usuario/crystodolar-frontend.git
+cd crystodolar-frontend
+
+# Configurar variables de entorno
+cp .env.example .env.local
+
+# Desarrollo rápido con Docker
+make -f docker/Makefile quick-dev
+
+# O usar scripts directamente
+docker/scripts/docker-dev.bat start    # Windows
+docker/scripts/docker-dev.sh start     # Linux/macOS
+```
+
+**¡Listo!** Tu aplicación estará disponible en http://localhost:3000
+
+#### Comandos Docker Rápidos
+
+```bash
+# Ver todos los comandos disponibles
+make help
+
+# Desarrollo (desde la raíz)
+make -f docker/Makefile build          # Construir imagen
+make -f docker/Makefile start          # Iniciar servicios
+make -f docker/Makefile stop           # Detener servicios
+make -f docker/Makefile logs           # Ver logs
+
+# O entrar a la carpeta docker
+cd docker
+make build          # Construir imagen
+make start          # Iniciar servicios
+make stop           # Detener servicios
+make logs           # Ver logs
+
+# Producción
+make -f docker/Makefile prod-deploy    # Despliegue completo
+make -f docker/Makefile prod-monitor   # Monitorear servicios
+```
 
 ### Instalación Local
 
@@ -336,6 +406,53 @@ style: mejorar diseño de tarjetas de cotización
 refactor: refactorizar lógica de contexto crypto
 test: agregar tests para componente CurrencyCard
 ```
+
+## 🐳 Docker
+
+### Configuración Completa y Organizada
+
+CrystoDolar incluye configuración completa de Docker organizada en la carpeta `docker/`:
+
+- **`docker/Dockerfile.prod`** - Multi-stage build optimizado para producción
+- **`docker/Dockerfile.dev`** - Configuración simple para desarrollo
+- **`docker/docker-compose.dev.yml`** - Servicios de desarrollo con hot reload
+- **`docker/docker-compose.prod.yml`** - Servicios de producción con Nginx
+- **`docker/scripts/`** - Scripts automatizados para Windows (.bat) y Unix (.sh)
+- **`docker/Makefile`** - Comandos simplificados para Docker
+- **`docker/configs/`** - Configuraciones de Nginx y otros servicios
+
+### Características Docker
+
+- ✅ **Multi-stage builds** para imágenes optimizadas
+- ✅ **Hot reload** en desarrollo
+- ✅ **Nginx reverse proxy** para producción
+- ✅ **Health checks** automáticos
+- ✅ **Volúmenes persistentes** para desarrollo
+- ✅ **Scripts cross-platform** (Windows/Linux/macOS)
+- ✅ **Configuración de seguridad** integrada
+- ✅ **Organización modular** en carpeta dedicada
+
+### Uso de Docker
+
+```bash
+# Desde la raíz del proyecto
+make help                    # Ver comandos disponibles
+make -f docker/Makefile help # Ayuda de Docker
+
+# Desde la carpeta docker
+cd docker
+make help                    # Ver todos los comandos Docker
+make build                   # Construir imagen de desarrollo
+make start                   # Iniciar servicios
+```
+
+### Documentación Docker
+
+Para información detallada sobre Docker, consulta:
+- [docker/README.md](docker/README.md) - Guía específica de Docker
+- [DOCKER.md](DOCKER.md) - Guía completa de Docker
+- [docker/scripts/](docker/scripts/) - Scripts automatizados
+- [docker/Makefile](docker/Makefile) - Comandos simplificados
 
 ## 📄 Licencia
 

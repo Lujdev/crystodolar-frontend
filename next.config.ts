@@ -1,20 +1,153 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /*
-   * Opcional: si deseas usar un proxy en desarrollo, configura
-   * NEXT_PUBLIC_API_BASE_URL vacío y agrega rewrites aquí.
-   */
-  async rewrites() {
-    return process.env.NEXT_PUBLIC_API_BASE_URL
-      ? []
-      : [
-          {
-            source: "/api/:path*",
-            destination: `${process.env.API_PROXY_TARGET || "http://localhost:8000"}/api/:path*`,
-          },
-        ]
+  // Configuración para Docker
+  output: 'standalone',
+  
+  // Configuración de imágenes
+  images: {
+    unoptimized: false,
+    domains: ['localhost'],
   },
+
+  // Configuración de experimental features
+  experimental: {
+    // Habilitar streaming SSR
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+
+  // Configuración de headers de seguridad
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+  },
+
+  // Configuración de rewrites para API
+  async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://crystodolar-api-production.up.railway.app';
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${apiUrl}/api/:path*`,
+      },
+    ];
+  },
+
+  // Configuración de variables de entorno
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+
+  // Configuración de webpack
+  webpack: (config, { isServer }) => {
+    // Configuración específica para el cliente
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
+    return config;
+  },
+
+  // Configuración de compilación
+  compiler: {
+    // Remover console.log en producción
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+
+  // Configuración de TypeScript
+  typescript: {
+    // Ignorar errores de TypeScript durante el build
+    ignoreBuildErrors: false,
+  },
+
+  // Configuración de ESLint
+  eslint: {
+    // Ignorar errores de ESLint durante el build
+    ignoreDuringBuilds: false,
+  },
+
+  // Configuración de transpilación
+  transpilePackages: [],
+
+  // Configuración de base path (útil para subdirectorios)
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
+
+  // Configuración de asset prefix
+  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
+
+  // Configuración de trailing slash
+  trailingSlash: false,
+
+  // Configuración de powered by header
+  poweredByHeader: false,
+
+  // Configuración de compress
+  compress: true,
+
+  // Configuración de devIndicators
+  devIndicators: {
+    position: 'bottom-right',
+  },
+
+  // Configuración de onDemandEntries
+  onDemandEntries: {
+    // Período (en ms) donde el servidor mantendrá las páginas en el buffer
+    maxInactiveAge: 25 * 1000,
+    // Número de páginas que deben mantenerse simultáneamente sin ser desechadas
+    pagesBufferLength: 2,
+  },
+
+  // Configuración de generateEtags
+  generateEtags: true,
+
+  // Configuración de distDir
+  distDir: '.next',
+
+  // Configuración de cleanDistDir
+  cleanDistDir: true,
+
+  // Configuración de modularizeImports
+  modularizeImports: {},
+
+  // Configuración de logging
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+
+  // Configuración de pageExtensions
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+
+  // Configuración de i18n (internacionalización)
+  i18n: undefined,
+
+  // Configuración de reactStrictMode
+  reactStrictMode: true,
 };
 
 export default nextConfig;

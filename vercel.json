@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "crystodolar-frontend",
+  "functions": {
+    "src/app/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "regions": ["iad1"],
+  "github": {
+    "silent": true
+  }
+}

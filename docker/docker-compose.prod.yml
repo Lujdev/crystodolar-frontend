@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # Frontend de CrystoDolar en producción
+  crystodolar-frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - NEXT_PUBLIC_API_URL=https://crystodolar-api-production.up.railway.app/
+    networks:
+      - crystodolar-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx reverse proxy (opcional)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - crystodolar-frontend
+    networks:
+      - crystodolar-network
+    restart: unless-stopped
+    profiles:
+      - nginx
+
+networks:
+  crystodolar-network:
+    driver: bridge
+
+volumes:
+  ssl:
