@@ -1,0 +1,32 @@
+# Dockerfile de desarrollo para CrystoDolar Frontend
+# Optimizado para desarrollo local con hot reload
+
+FROM node:18-alpine
+
+# Instalar dependencias del sistema
+RUN apk add --no-cache libc6-compat
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Instalar pnpm globalmente
+RUN npm install -g pnpm
+
+# Copiar archivos de dependencias
+COPY package.json pnpm-lock.yaml* ./
+
+# Instalar dependencias
+RUN pnpm install
+
+# Copiar código fuente
+COPY . .
+
+# Variables de entorno para desarrollo
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Exponer puerto
+EXPOSE 3000
+
+# Comando para desarrollo
+CMD ["pnpm", "run", "dev"]
