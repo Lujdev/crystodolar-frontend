@@ -30,9 +30,9 @@ export function Header() {
               <DollarSign className="h-6 w-6 text-white" />
             </div>
             <div>
-              <button 
+              <button
                 onClick={() => window.location.href = '/'}
-                className="text-left hover:opacity-80 transition-opacity"
+                className="text-left hover:opacity-80 transition-opacity cursor-pointer"
               >
                 <h1 className="text-2xl font-bold text-white">CrystoDolar</h1>
                 <p className="text-sm text-gray-300">Dólar, Euro y Cripto en tiempo real</p>
@@ -44,7 +44,7 @@ export function Header() {
           <div className="flex items-center space-x-4">
             {/* Navegación a cotización histórica */}
             <div className="hidden md:flex items-center space-x-2">
-              <button 
+              <button
                 onClick={() => window.location.href = '/historica'}
                 className="flex items-center space-x-2 text-sm text-gray-300 hover:text-blue-400 transition-colors"
               >
@@ -71,30 +71,30 @@ export function Header() {
             {/* Última actualización */}
             {lastUpdate && (
               <div className="hidden lg:block text-xs text-gray-400">
-                Actualizado: {lastUpdate.toLocaleTimeString('es-VE', { 
-                  hour: '2-digit', 
+                Actualizado: {lastUpdate.toLocaleTimeString('es-VE', {
+                  hour: '2-digit',
                   minute: '2-digit',
                   second: '2-digit'
                 })}
               </div>
             )}
-            
+
             {/* Botón de actualización */}
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleRefresh}
               disabled={isLoading}
               className={`group flex items-center space-x-2 transition-all duration-200 ${
-                isLoading 
-                  ? 'bg-blue-600 text-white border-blue-600 cursor-not-allowed opacity-90' 
+                isLoading
+                  ? 'bg-blue-600 text-white border-blue-600 cursor-not-allowed opacity-90'
                   : 'hover:bg-blue-600 hover:text-white hover:border-blue-600 hover:scale-105'
               }`}
             >
-              <RefreshCw 
+              <RefreshCw
                 className={`h-4 w-4 transition-transform duration-200 ${
                   isLoading ? 'animate-spin' : 'group-hover:rotate-180'
-                }`} 
+                }`}
               />
               <span className="hidden sm:inline font-medium">
                 {isLoading ? 'Actualizando...' : 'Actualizar'}
