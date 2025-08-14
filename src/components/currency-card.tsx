@@ -21,7 +21,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   const [showInfo, setShowInfo] = useState(false)
   const [showCalc, setShowCalc] = useState(false)
   const infoRef = useRef<HTMLDivElement | null>(null)
-  
+
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -57,7 +57,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
     return <DollarSign className="h-4 w-4" />
   }
 
-  
+
 
   /**
    * Maneja las acciones de los botones
@@ -195,25 +195,25 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
 
         {/* Acciones - 3 iconos más juntos */}
         <div className="flex items-center justify-center space-x-6 pt-2 border-t border-gray-700">
-          <button 
+          <button
             onClick={handleCalculator}
-            className="text-gray-400 hover:text-blue-400 transition-colors"
+            className="text-gray-400 hover:text-blue-400 transition-colors cursor-pointer"
             title="Abrir Calculadora"
           >
             <Calculator className="h-5 w-5 hover:scale-110 transition-transform" />
           </button>
-          
-          <button 
+
+          <button
             onClick={handleHistorical}
-            className="text-gray-400 hover:text-yellow-400 transition-colors"
+            className="text-gray-400 hover:text-yellow-400 transition-colors cursor-pointer"
             title="Ver Cotización Histórica"
           >
             <TrendingUp className="h-5 w-5 hover:scale-110 transition-transform" />
           </button>
-          
-          <button 
+
+          <button
             onClick={handleOfficialSite}
-            className="text-gray-400 hover:text-green-400 transition-colors"
+            className="text-gray-400 hover:text-green-400 transition-colors cursor-pointer"
             title="Sitio Oficial"
           >
             <Globe className="h-5 w-5 hover:scale-110 transition-transform" />
@@ -228,5 +228,3 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
     </Card>
   )
 }
-
-
