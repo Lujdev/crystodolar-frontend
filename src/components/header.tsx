@@ -4,6 +4,7 @@ import { TrendingUp, DollarSign, RefreshCw, Wifi, WifiOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCryptoContext } from '@/lib/crypto-context'
+import Image from 'next/image'
 
 /**
  * Componente Header de CrystoDolar
@@ -26,8 +27,8 @@ export function Header() {
         <div className="flex items-center justify-between">
           {/* Logo y título */}
           <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-br from-blue-500 to-yellow-500 p-2 rounded-lg">
-              <DollarSign className="h-6 w-6 text-white" />
+            <div className="bg-gradient-to-br from-blue-500 to-yellow-500 p-1 rounded-lg">
+              <Image src="https://cdn.crystodolarvzla.site/crystologo.webp" alt="logo" width={48} height={48} className='h-12 w-12' priority sizes="48px" />
             </div>
             <div>
               <button
