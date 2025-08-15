@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
-import { CurrencyContextState, CurrencyContextActions, CryptoRate } from '@/types/currency'
+import { CurrencyContextState, CurrencyContextActions, CryptoRate, ApiResponse, ApiRateData } from '@/types/currency'
 import { toast } from 'sonner'
 
 /**
@@ -95,12 +95,58 @@ export function CryptoContextProvider({ children }: { children: React.ReactNode 
   const [state, dispatch] = useReducer(cryptoReducer, initialState)
 
   /**
-   * Función para actualizar todas las cotizaciones USDT/Bs
-   * Simula llamada a API externa (BCV + Binance P2P)
+   * Función para mapear datos de la API al formato interno
+   */
+  const mapApiDataToRate = (apiData: ApiRateData): CryptoRate => {
+    const variation = parseFloat(apiData.variation_percentage.replace('%', '').replace('+', ''))
+    
+    // Determinar categoría basada en base_currency
+    let category: 'dolar' | 'euro' | 'cripto'
+    let type: 'fiat' | 'crypto'
+    let color: string
+    
+    if (apiData.base_currency === 'USD') {
+      category = 'dolar'
+      type = 'fiat'
+      color = 'bg-blue-600'
+    } else if (apiData.base_currency === 'EUR') {
+      category = 'euro'
+      type = 'fiat'
+      color = 'bg-indigo-600'
+    } else {
+      category = 'cripto'
+      type = 'crypto'
+      color = 'bg-yellow-600'
+    }
+    
+    // Generar nombre según trade_type
+    const name = apiData.trade_type === 'official' 
+      ? `${apiData.base_currency} BCV`
+      : `${apiData.base_currency} Binance p2p`
+    
+    return {
+      id: `${apiData.base_currency.toLowerCase()}-${apiData.exchange_code}`,
+      name,
+      category,
+      buy: apiData.buy_price,
+      sell: apiData.sell_price,
+      variation,
+      lastUpdate: new Date(apiData.timestamp),
+      type,
+      color,
+      description: `${apiData.source} - ${apiData.currency_pair}`,
+      baseCurrency: apiData.base_currency,
+      quoteCurrency: apiData.quote_currency,
+      tradeType: apiData.trade_type
+    }
+  }
+
+  /**
+   * Función principal para actualizar cotizaciones desde la API
+   * Usa el nuevo endpoint /api/v1/rates/current
    */
   const refreshRates = useCallback(async (showToast: boolean = false) => {
     try {
-      // Establecer estado de carga ANTES de hacer las peticiones
       dispatch({ type: 'SET_LOADING', payload: true })
       dispatch({ type: 'SET_ERROR', payload: null })
       dispatch({ type: 'SET_INITIAL_LOAD_ATTEMPT', payload: true })
@@ -108,85 +154,20 @@ export function CryptoContextProvider({ children }: { children: React.ReactNode 
       const apiBaseRaw = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       const apiBase = apiBaseRaw.replace(/\/+$/, '')
       
-      // Intentar obtener comparación (BCV + Binance) y mapear a nuestras tarjetas
-      const compareRes = await fetch(`${apiBase}/api/v1/rates/compare`, { cache: 'no-store' })
-      if (!compareRes.ok) throw new Error('Error al solicitar comparación de fuentes')
-      const compareJson = await compareRes.json()
-
-      // Intentar obtener scraping BCV directo para tener EUR/VE
-      const bcvRes = await fetch(`${apiBase}/api/v1/rates/scrape-bcv`, { cache: 'no-store' })
-      if (!bcvRes.ok) throw new Error('Error al solicitar BCV')
-      const bcvJson = await bcvRes.json()
-
-      // Intentar obtener Binance P2P completo (buy y sell)
-      const binanceCompleteRes = await fetch(`${apiBase}/api/v1/rates/binance-p2p/complete`, { cache: 'no-store' })
-      if (!binanceCompleteRes.ok) throw new Error('Error al solicitar Binance P2P completo')
-      const binanceCompleteJson = await binanceCompleteRes.json()
-
-      const usdVes = bcvJson?.data?.usd_ves ?? compareJson?.data?.bcv?.usd_ves
-      const eurVes = bcvJson?.data?.eur_ves ?? null
-      const complete = binanceCompleteJson?.data
+      const response = await fetch(`${apiBase}/api/v1/rates/current`, { cache: 'no-store' })
+      if (!response.ok) throw new Error('Error al obtener cotizaciones actuales')
       
-      // Mapeo correcto para la UI:
-      // - Compra (usuario compra USDT) -> buy_usdt.price
-      // - Vende  (usuario vende USDT)  -> sell_usdt.price
-      const usdtBuy = complete?.buy_usdt?.price ?? compareJson?.data?.binance_p2p?.usdt_ves_sell
-      const usdtSell = complete?.sell_usdt?.price ?? compareJson?.data?.binance_p2p?.usdt_ves_buy
-      const usdtAvg = complete?.buy_usdt?.avg_price 
-        ?? complete?.sell_usdt?.avg_price 
-        ?? compareJson?.data?.binance_p2p?.usdt_ves_avg 
-        ?? (typeof usdtBuy === 'number' && typeof usdtSell === 'number' ? (usdtBuy + usdtSell) / 2 : null)
-
-      const updatedRates: CryptoRate[] = []
-      if (typeof usdVes === 'number') {
-        updatedRates.push({
-          id: 'usd-bcv',
-          name: 'Dólar Oficial',
-          category: 'dolar',
-          buy: usdVes,
-          sell: usdVes,
-          variation: 0,
-          lastUpdate: new Date(),
-          type: 'fiat',
-          color: 'bg-blue-600',
-          description: 'Banco Central de Venezuela - USD/VES'
-        })
+      const apiResponse: ApiResponse = await response.json()
+      
+      if (apiResponse.status !== 'success' || !apiResponse.data) {
+        throw new Error('Respuesta inválida de la API')
       }
-      if (typeof eurVes === 'number') {
-        updatedRates.push({
-          id: 'eur-bcv',
-          name: 'Euro Oficial',
-          category: 'euro',
-          buy: eurVes,
-          sell: eurVes,
-          variation: 0,
-          lastUpdate: new Date(),
-          type: 'fiat',
-          color: 'bg-indigo-600',
-          description: 'Banco Central de Venezuela - EUR/VES'
-        })
-      }
-      if (typeof usdtBuy === 'number' || typeof usdtSell === 'number' || typeof usdtAvg === 'number') {
-        const buy = typeof usdtBuy === 'number' ? usdtBuy : (typeof usdtAvg === 'number' ? usdtAvg : 0)
-        const sell = typeof usdtSell === 'number' ? usdtSell : (typeof usdtAvg === 'number' ? usdtAvg : buy)
-        updatedRates.push({
-          id: 'usdt-binance',
-          name: 'USDT',
-          category: 'cripto',
-          buy,
-          sell,
-          variation: 0,
-          lastUpdate: new Date(),
-          type: 'crypto',
-          color: 'bg-yellow-600',
-          description: 'Binance P2P - USDT/VES'
-        })
-      }
-
-      // Establecer las tasas y desactivar carga
+      
+      // Mapear datos de la API al formato interno
+      const updatedRates: CryptoRate[] = apiResponse.data.map(mapApiDataToRate)
+      
       dispatch({ type: 'SET_RATES', payload: updatedRates })
       
-      // Mostrar toast de éxito solo cuando se solicite explícitamente
       if (showToast && updatedRates.length > 0) {
         toast.success('Tasas actualizadas correctamente', {
           description: `Se actualizaron ${updatedRates.length} cotizaciones`,
@@ -194,7 +175,6 @@ export function CryptoContextProvider({ children }: { children: React.ReactNode 
         })
       }
     } catch (error) {
-      // En caso de error, desactivar carga y mostrar error
       dispatch({ type: 'SET_ERROR', payload: 'Error al actualizar las cotizaciones' })
       console.error('Error refreshing crypto rates:', error)
       

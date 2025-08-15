@@ -7,8 +7,8 @@ import { CryptoRate } from '@/types/currency'
  */
 export const mockCryptoRates: CryptoRate[] = [
   {
-    id: 'usdt-bcv',
-    name: 'USDT BCV',
+    id: 'usd-bcv',
+    name: 'USD Oficial',
     category: 'dolar',
     buy: 36.50,
     sell: 36.50,
@@ -16,11 +16,14 @@ export const mockCryptoRates: CryptoRate[] = [
     lastUpdate: new Date(),
     type: 'fiat',
     color: 'bg-blue-600',
-    description: 'Banco Central de Venezuela - Tasa oficial'
+    description: 'Banco Central de Venezuela - USD/VES',
+    baseCurrency: 'USD',
+    quoteCurrency: 'VES',
+    tradeType: 'official'
   },
   {
-    id: 'usdt-binance',
-    name: 'USDT Binance P2P',
+    id: 'usdt-binance_p2p',
+    name: 'USDT Binance',
     category: 'cripto',
     buy: 37.20,
     sell: 37.80,
@@ -28,7 +31,10 @@ export const mockCryptoRates: CryptoRate[] = [
     lastUpdate: new Date(),
     type: 'crypto',
     color: 'bg-yellow-600',
-    description: 'Binance P2P Venezuela - Mercado crypto'
+    description: 'Binance P2P - USDT/VES',
+    baseCurrency: 'USDT',
+    quoteCurrency: 'VES',
+    tradeType: 'p2p'
   }
 ]
 

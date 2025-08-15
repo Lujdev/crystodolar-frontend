@@ -51,9 +51,8 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   /**
    * Obtiene el ícono según el tipo de cotización
    */
-  const getTypeIcon = (type: string) => {
-    if (type === 'fiat') return <Building2 className="h-4 w-4" />
-    // Para crypto mostramos el signo del activo (USDT)
+  const getTypeIcon = (baseCurrency: string) => {
+    if (baseCurrency === 'USD' || baseCurrency === 'EUR') return <Building2 className="h-4 w-4" />
     return <DollarSign className="h-4 w-4" />
   }
 
@@ -71,40 +70,30 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   }
 
   const handleOfficialSite = () => {
-    // TODO: Redirigir al sitio oficial correspondiente
-    const sites = {
-      fiat: 'https://www.bcv.org.ve',
-      crypto: 'https://p2p.binance.com'
-    }
-    window.open(sites[rate.type], '_blank')
+    const url = rate.tradeType === 'official' 
+      ? 'https://www.bcv.org.ve'
+      : 'https://p2p.binance.com'
+    window.open(url, '_blank')
   }
 
   /**
    * Obtiene la información específica para cada tipo de cotización
    */
   const getInfoContent = () => {
-    switch (rate.type) {
-      case 'fiat':
-        return {
-          title: '¿Qué representa este valor?',
-          description: 'Se trata del dólar oficial del Banco Central de Venezuela (BCV), utilizado para transacciones gubernamentales y comerciales autorizadas.',
-          schedule: 'Actualizado de lunes a viernes de 9:00h a 16:00h.',
-          source: 'Fuente oficial: BCV'
-        }
-      case 'crypto':
-        return {
-          title: '¿Qué representa este valor?',
-          description: 'Se trata del USDT negociado directamente entre privados en la plataforma Binance P2P, reflejando el mercado crypto venezolano.',
-          schedule: 'Opera las 24 horas, los 7 días de la semana.',
-          source: 'Fuente: Binance P2P Venezuela'
-        }
-      default:
-        return {
-          title: '¿Qué representa este valor?',
-          description: 'Cotización de USDT en el mercado venezolano.',
-          schedule: 'Horarios variables según la fuente.',
-          source: 'Múltiples fuentes'
-        }
+    if (rate.tradeType === 'official') {
+      return {
+        title: '¿Qué representa este valor?',
+        description: `Se trata del ${rate.baseCurrency} oficial del Banco Central de Venezuela (BCV), utilizado para transacciones gubernamentales y comerciales autorizadas.`,
+        schedule: 'Actualizado de lunes a viernes de 9:00h a 16:00h.',
+        source: 'Fuente oficial: BCV'
+      }
+    } else {
+      return {
+        title: '¿Qué representa este valor?',
+        description: `Se trata del ${rate.baseCurrency} negociado directamente entre privados en la plataforma Binance P2P, reflejando el mercado venezolano.`,
+        schedule: 'Opera las 24 horas, los 7 días de la semana.',
+        source: 'Fuente: Binance P2P Venezuela'
+      }
     }
   }
 
@@ -123,7 +112,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
         {/* Título y estado */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
-            {getTypeIcon(rate.type)}
+            {getTypeIcon(rate.baseCurrency)}
             <h3 className="text-sm font-bold text-white">
               {rate.name.toUpperCase()}
             </h3>
@@ -165,13 +154,10 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
               <p className="text-xs text-gray-400 mb-1">Vende</p>
               <div className="text-center">
                 <p className="text-sm font-bold text-white mb-1">
-                  {(() => {
-                    const base = rate.category === 'euro' ? '€' : rate.category === 'dolar' ? '$' : 'USDT'
-                    return `1${base} =`
-                  })()}
+                  1 {rate.baseCurrency} =
                 </p>
                 <p className="text-lg font-bold text-white">
-                  {`${rate.sell.toFixed(4)} Bs`}
+                  {rate.quoteCurrency === 'VES' ? `${rate.sell.toFixed(4)} Bs` : `${rate.sell.toFixed(4)} ${rate.quoteCurrency}`}
                 </p>
               </div>
             </div>
@@ -181,13 +167,10 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
               <p className="text-xs text-gray-400 mb-1">Compra</p>
               <div className="text-center">
                 <p className="text-sm font-bold text-green-400 mb-1">
-                  {(() => {
-                    const base = rate.category === 'euro' ? '€' : rate.category === 'dolar' ? '$' : 'USDT'
-                    return `1${base} =`
-                  })()}
+                  1 {rate.baseCurrency} =
                 </p>
                 <p className="text-lg font-bold text-green-400">
-                  {`${rate.buy.toFixed(4)} Bs`}
+                  {rate.quoteCurrency === 'VES' ? `${rate.buy.toFixed(4)} Bs` : `${rate.buy.toFixed(4)} ${rate.quoteCurrency}`}
                 </p>
               </div>
             </div>
