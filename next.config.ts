@@ -1,21 +1,12 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // Configuración para Docker
   output: 'standalone',
-  
+
   // Configuración de imágenes
   images: {
-    unoptimized: false,
-    domains: ['localhost'],
-  },
-
-  // Configuración de experimental features
-  experimental: {
-    // Habilitar streaming SSR
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
+    remotePatterns: [new URL('https://cdn.crystodolarvzla.site/**')],
   },
 
   // Configuración de headers de seguridad
@@ -43,7 +34,9 @@ const nextConfig: NextConfig = {
 
   // Configuración de rewrites para API
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://crystodolar-api-production.up.railway.app';
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL ||
+      'https://crystodolar-api-production.up.railway.app';
     return [
       {
         source: '/api/:path*',
