@@ -98,7 +98,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   }
 
   return (
-         <Card className="bg-gray-900 border-red-500 border-2 rounded-lg hover:shadow-xl transition-all duration-300 group w-80">
+         <Card className="bg-gray-900 border-red-500 border-2 rounded-lg hover:shadow-xl transition-all duration-300 group w-80 h-[280px] flex flex-col">
       {/* Header con variación - más compacto */}
       <div className="bg-red-600 p-2 flex items-center justify-center">
         <div className={`flex items-center space-x-1 text-white font-bold`}>
@@ -108,7 +108,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
       </div>
 
       {/* Contenido principal - más compacto */}
-      <div className="p-3 text-white">
+      <div className="p-3 text-white flex-1 flex flex-col justify-between">
         {/* Título y estado */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
@@ -127,9 +127,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
               </button>
 
               {showInfo && (
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 w-80 bg-gray-800 text-gray-200 rounded-lg shadow-xl border border-gray-700 z-[9999]">
-                  {/* Punta del tooltip apuntando hacia abajo */}
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-gray-800"></div>
+                <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 bg-gray-800 text-gray-200 rounded-lg shadow-xl border border-gray-700 z-[9999]">
                   <div className="p-4">
                     <h4 className="text-sm font-semibold text-white mb-2">{getInfoContent().title}</h4>
                     <p className="text-xs text-gray-300 leading-relaxed mb-2">
