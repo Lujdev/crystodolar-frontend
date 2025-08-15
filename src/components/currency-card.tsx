@@ -5,7 +5,7 @@ import { TrendingUp, TrendingDown, Minus, DollarSign, Building2, Calculator, Glo
 import { Card } from '@/components/ui/card'
 import { CryptoRate } from '@/types/currency'
 import { formatVariation } from '@/lib/crypto-data'
-import { CalculatorModalLazy } from '@/components/calculator-modal-lazy'
+import { CalculatorModal } from '@/components/calculator-modal'
 
 interface CurrencyCardProps {
   /** Datos de la cotización USDT/Bs a mostrar */
@@ -98,7 +98,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   }
 
   return (
-         <Card className="bg-gray-900 border-red-500 border-2 rounded-lg hover:shadow-xl transition-all duration-300 group w-80 h-[280px] flex flex-col">
+         <Card className="bg-gray-900 border-red-500 border-2 rounded-lg hover:shadow-xl transition-all duration-300 group w-80">
       {/* Header con variación - más compacto */}
       <div className="bg-red-600 p-2 flex items-center justify-center">
         <div className={`flex items-center space-x-1 text-white font-bold`}>
@@ -108,7 +108,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
       </div>
 
       {/* Contenido principal - más compacto */}
-      <div className="p-3 text-white flex-1 flex flex-col justify-between">
+      <div className="p-3 text-white">
         {/* Título y estado */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
@@ -206,7 +206,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
 
       {/* Tooltip ya renderizado arriba. */}
       {showCalc && (
-        <CalculatorModalLazy isOpen={showCalc} onClose={() => setShowCalc(false)} rate={rate} />
+        <CalculatorModal isOpen={showCalc} onClose={() => setShowCalc(false)} rate={rate} />
       )}
     </Card>
   )

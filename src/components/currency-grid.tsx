@@ -20,8 +20,8 @@ export function CurrencyGrid() {
   if (isLoading || rates.length === 0) {
     return (
       <div className="space-y-6">
-        {/* Grilla de skeletons con dimensiones fijas */}
-        <div className="currency-grid max-w-6xl mx-auto">
+        {/* Grilla de skeletons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {Array.from({ length: 3 }).map((_, index) => (
             <CurrencyCardSkeleton key={index} />
           ))}
@@ -95,12 +95,10 @@ export function CurrencyGrid() {
         </div>
       )}
 
-      {/* Grilla principal de cotizaciones con dimensiones fijas */}
-      <div className="currency-grid max-w-6xl mx-auto">
+      {/* Grilla principal de cotizaciones */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {visibleRates.map((rate: CryptoRate) => (
-          <div key={rate.id} className="flex justify-center">
-            <CurrencyCard rate={rate} />
-          </div>
+          <CurrencyCard key={rate.id} rate={rate} />
         ))}
       </div>
       
