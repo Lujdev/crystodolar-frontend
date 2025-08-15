@@ -4,7 +4,11 @@ import "./globals.css";
 import { CryptoContextProvider } from "@/lib/crypto-context";
 import { Toaster } from "sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true
+});
 
 export const metadata: Metadata = {
   title: "CrystoDolar - Cotizaciones USDT/Bs en Tiempo Real",
