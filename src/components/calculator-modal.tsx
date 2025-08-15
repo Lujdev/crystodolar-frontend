@@ -38,16 +38,12 @@ export function CalculatorModal({ isOpen, onClose, rate }: CalculatorModalProps)
   }, [isOpen, onClose])
 
   const baseLabel = useMemo(() => {
-    if (rate.category === 'dolar') return 'USD'
-    if (rate.category === 'euro') return 'EUR'
-    return 'USDT'
-  }, [rate.category])
+    return rate.baseCurrency
+  }, [rate.baseCurrency])
 
   const baseSymbol = useMemo(() => {
-    if (rate.category === 'dolar') return '$'
-    if (rate.category === 'euro') return '€'
-    return 'USDT'
-  }, [rate.category])
+    return rate.baseCurrency
+  }, [rate.baseCurrency])
 
   const selectedRate = quote === 'sell' ? rate.sell : rate.buy
 
