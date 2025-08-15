@@ -28,7 +28,15 @@ export function Header() {
           {/* Logo y título */}
           <div className="flex items-center space-x-3">
             <div className="bg-gradient-to-br from-blue-500 to-yellow-500 p-1 rounded-lg">
-              <Image src="/images/crystologo.webp" alt="logo" width={150} height={150} className='h-12 w-12' loading='lazy' />
+              <Image 
+                src="https://cdn.crystodolarvzla.site/crystologo.webp" 
+                alt="CrystoDolar Logo" 
+                width={48} 
+                height={48} 
+                className='h-12 w-12' 
+                priority
+                sizes="48px"
+              />
             </div>
             <div>
               <button 

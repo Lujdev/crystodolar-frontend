@@ -4,16 +4,24 @@ const nextConfig: NextConfig = {
   // Configuración para Docker
   output: 'standalone',
 
-  // Configuración de imágenes
+  // Configuración de imágenes optimizada
   images: {
-    remotePatterns: [new URL('https://cdn.crystodolarvzla.site/**')],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.crystodolarvzla.site',
+        pathname: '/**',
+      },
+    ],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
   },
 
-  // Configuración de headers de seguridad
+  // Configuración de headers optimizada para rendimiento
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/',
         headers: [
           {
             key: 'X-Frame-Options',
@@ -26,6 +34,102 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Cache-Control',
+            value:
+              'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Cache-Control',
+            value:
+              'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value:
+              'public, max-age=300, s-maxage=300, stale-while-revalidate=600',
+          },
+          {
+            key: 'Vary',
+            value: 'Accept-Encoding',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Vary',
+            value: 'Accept-Encoding',
+          },
+        ],
+      },
+      {
+        source: '/_next/image/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value:
+              'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+          },
+          {
+            key: 'Vary',
+            value: 'Accept',
+          },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value:
+              'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+          },
+          {
+            key: 'Vary',
+            value: 'Accept',
+          },
+        ],
+      },
+      {
+        source:
+          '/:path*\\.(js|css|woff|woff2|ttf|eot|svg|ico|png|jpg|jpeg|gif|webp|avif)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Vary',
+            value: 'Accept-Encoding',
           },
         ],
       },
@@ -45,13 +149,8 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Configuración de variables de entorno
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
-
-  // Configuración de webpack
-  webpack: (config, { isServer }) => {
+  // Configuración de webpack optimizada
+  webpack: (config, { isServer, dev }) => {
     // Configuración específica para el cliente
     if (!isServer) {
       config.resolve.fallback = {
@@ -62,13 +161,46 @@ const nextConfig: NextConfig = {
       };
     }
 
+    // Optimizaciones de producción
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+          },
+        },
+      };
+    }
+
     return config;
   },
 
-  // Configuración de compilación
+  // Configuración de compilación optimizada
   compiler: {
-    // Remover console.log en producción
     removeConsole: process.env.NODE_ENV === 'production',
+    styledComponents: true,
+  },
+
+  // Configuración experimental para optimizaciones
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-slot'],
+    gzipSize: true,
+    serverComponentsExternalPackages: ['sharp'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
 
   // Configuración de TypeScript
@@ -83,36 +215,14 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
 
-  // Configuración de transpilación
-  transpilePackages: [],
-
-  // Configuración de base path (útil para subdirectorios)
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
-
-  // Configuración de asset prefix
-  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '',
-
   // Configuración de trailing slash
   trailingSlash: false,
 
   // Configuración de powered by header
   poweredByHeader: false,
 
-  // Configuración de compress
+  // Configuración de compress mejorada
   compress: true,
-
-  // Configuración de devIndicators
-  devIndicators: {
-    position: 'bottom-right',
-  },
-
-  // Configuración de onDemandEntries
-  onDemandEntries: {
-    // Período (en ms) donde el servidor mantendrá las páginas en el buffer
-    maxInactiveAge: 25 * 1000,
-    // Número de páginas que deben mantenerse simultáneamente sin ser desechadas
-    pagesBufferLength: 2,
-  },
 
   // Configuración de generateEtags
   generateEtags: true,
@@ -123,21 +233,8 @@ const nextConfig: NextConfig = {
   // Configuración de cleanDistDir
   cleanDistDir: true,
 
-  // Configuración de modularizeImports
-  modularizeImports: {},
-
-  // Configuración de logging
-  logging: {
-    fetches: {
-      fullUrl: true,
-    },
-  },
-
-  // Configuración de pageExtensions
-  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-
   // Configuración de i18n (internacionalización)
-  i18n: undefined,
+  i18n: null,
 
   // Configuración de reactStrictMode
   reactStrictMode: true,
