@@ -27,7 +27,6 @@ CrystoDolar es una aplicación web moderna desarrollada en Next.js que proporcio
 
 - **BCV (Banco Central de Venezuela)**: Tasa oficial fiat
 - **Binance P2P**: Mercado crypto peer-to-peer
-- **Mercado Paralelo**: Cotizaciones del mercado informal
 
 ### 🎨 Diseño y UX
 
@@ -268,9 +267,7 @@ interface CurrencyCardProps {
 **Métricas mostradas**:
 - USDT BCV (tasa oficial)
 - Brecha Fiat/Crypto
-- Variación promedio del mercado
-- Última actualización
-
+- 
 ### 4. CryptoContext
 **Responsabilidad**: Estado global de la aplicación
 
@@ -360,6 +357,7 @@ NEXT_PUBLIC_BINANCE_API_KEY=tu_api_key_binance (opcional)
 - **Netlify**: Compatible con Next.js
 - **AWS Amplify**: Despliegue serverless
 - **Docker**: Containerización para cualquier servidor
+- **Cloudflare**: Imagenes y Cache
 
 ## 🤝 Contribución
 
