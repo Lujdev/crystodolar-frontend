@@ -443,5 +443,3 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 ---
 
 **CrystoDolar** - Hecho con ❤️ para Venezuela 🇻🇪
-
-*Última actualización: ${new Date().toLocaleDateString('es-ES')}*
