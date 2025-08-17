@@ -120,3 +120,71 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Estilos personalizados para mejorar la responsividad */
+@layer components {
+  /* Mejoras para las tarjetas de moneda en móvil */
+  .currency-card-mobile {
+    @apply w-full max-w-sm mx-auto;
+  }
+  
+  /* Ajustes para el grid en pantallas pequeñas */
+  .currency-grid-mobile {
+    @apply gap-4 sm:gap-6 lg:gap-8;
+  }
+  
+  /* Mejoras para el modal de información en móvil */
+  .info-modal-mobile {
+    @apply w-[95vw] max-w-sm mx-4;
+  }
+  
+  /* Ajustes para las pestañas en móvil */
+  .currency-tabs-mobile {
+    @apply w-full max-w-md mx-auto;
+  }
+  
+  /* Mejoras para el header en móvil */
+  .header-mobile {
+    @apply py-3 sm:py-4;
+  }
+  
+  .header-logo-mobile {
+    @apply h-10 w-10 sm:h-12 sm:w-12;
+  }
+  
+  .header-title-mobile {
+    @apply text-xl sm:text-2xl;
+  }
+  
+  .header-subtitle-mobile {
+    @apply text-xs sm:text-sm leading-tight;
+    @apply opacity-80 hover:opacity-100 transition-opacity;
+    @apply font-extralight tracking-wide;
+  }
+  
+  .header-button-mobile {
+    @apply min-w-[40px] sm:min-w-[auto] h-10 sm:h-9 px-2 sm:px-3;
+  }
+}
+
+/* Estilos específicos para el botón de actualizar del header */
+@layer utilities {
+  .header-refresh-button {
+    @apply flex items-center justify-center;
+    @apply min-w-[40px] sm:min-w-[auto];
+    @apply h-10 sm:h-9;
+    @apply px-2 sm:px-3;
+    @apply border-gray-600 hover:border-blue-500;
+    @apply hover:bg-blue-600 hover:text-white;
+    @apply transition-all duration-200;
+    @apply rounded-md;
+  }
+  
+  .header-refresh-button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  
+  .header-refresh-button .lucide {
+    @apply h-4 w-4;
+  }
+}

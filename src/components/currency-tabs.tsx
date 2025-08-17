@@ -52,14 +52,14 @@ export function CurrencyTabs({ onTabChange }: CurrencyTabsProps) {
   }
 
   return (
-    <div className="flex justify-center mb-8">
-      <div className="flex bg-gray-800 rounded-full p-1 space-x-1">
+    <div className="flex justify-center mb-6 sm:mb-8 px-4 sm:px-6 lg:px-8">
+      <div className="flex bg-gray-800 rounded-full p-1 space-x-1 w-full max-w-md sm:max-w-lg">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => handleTabClick(tab.id)}
             className={`
-              flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+              flex items-center justify-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex-1
               ${activeTab === tab.id 
                 ? tab.id === 'dolar' 
                   ? 'bg-green-600 text-white shadow-lg' 
@@ -69,7 +69,7 @@ export function CurrencyTabs({ onTabChange }: CurrencyTabsProps) {
             `}
           >
             {tab.icon}
-            <span>{tab.name}</span>
+            <span className="hidden sm:inline">{tab.name}</span>
           </button>
         ))}
       </div>

@@ -21,7 +21,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   const [showInfo, setShowInfo] = useState(false)
   const [showCalc, setShowCalc] = useState(false)
   const infoRef = useRef<HTMLDivElement | null>(null)
-  
+
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -56,7 +56,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
     return <DollarSign className="h-4 w-4" />
   }
 
-  
+
 
   /**
    * Maneja las acciones de los botones
@@ -98,7 +98,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   }
 
   return (
-         <Card className="bg-gray-900 border-red-500 border-2 rounded-lg hover:shadow-xl transition-all duration-300 group w-80 h-[280px] flex flex-col">
+    <Card className="bg-gray-900 border-red-500 border-2 rounded-lg hover:shadow-xl transition-all duration-300 group w-full h-auto min-h-[280px] flex flex-col currency-card-mobile">
       {/* Header con variación - más compacto */}
       <div className="bg-red-600 p-2 flex items-center justify-center">
         <div className={`flex items-center space-x-1 text-white font-bold`}>
@@ -127,7 +127,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
               </button>
 
               {showInfo && (
-                <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 bg-gray-800 text-gray-200 rounded-lg shadow-xl border border-gray-700 z-[9999]">
+                <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm bg-gray-800 text-gray-200 rounded-lg shadow-xl border border-gray-700 z-[9999] info-modal-mobile">
                   <div className="p-4">
                     <h4 className="text-sm font-semibold text-white mb-2">{getInfoContent().title}</h4>
                     <p className="text-xs text-gray-300 leading-relaxed mb-2">
@@ -145,56 +145,56 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
           </div>
         </div>
 
-                          {/* Precios principales - más juntos como en la imagen */}
-          <div className="grid grid-cols-2 gap-1 mb-4">
-            {/* Precio de venta */}
+        {/* Precios principales - más juntos como en la imagen */}
+        <div className="grid grid-cols-2 gap-1 mb-4">
+          {/* Precio de venta */}
+          <div className="text-center">
+            <p className="text-xs text-gray-400 mb-1">Vende</p>
             <div className="text-center">
-              <p className="text-xs text-gray-400 mb-1">Vende</p>
-              <div className="text-center">
-                <p className="text-sm font-bold text-white mb-1">
-                  1 {rate.baseCurrency} =
-                </p>
-                <p className="text-lg font-bold text-white">
-                  {rate.quoteCurrency === 'VES' ? `${rate.sell.toFixed(4)} Bs` : `${rate.sell.toFixed(4)} ${rate.quoteCurrency}`}
-                </p>
-              </div>
-            </div>
-
-            {/* Separador vertical */}
-            <div className="text-center border-l border-gray-600">
-              <p className="text-xs text-gray-400 mb-1">Compra</p>
-              <div className="text-center">
-                <p className="text-sm font-bold text-green-400 mb-1">
-                  1 {rate.baseCurrency} =
-                </p>
-                <p className="text-lg font-bold text-green-400">
-                  {rate.quoteCurrency === 'VES' ? `${rate.buy.toFixed(4)} Bs` : `${rate.buy.toFixed(4)} ${rate.quoteCurrency}`}
-                </p>
-              </div>
+              <p className="text-sm font-bold text-white mb-1">
+                1 {rate.baseCurrency} =
+              </p>
+              <p className="text-lg font-bold text-white">
+                {rate.quoteCurrency === 'VES' ? `${rate.sell.toFixed(4)} Bs` : `${rate.sell.toFixed(4)} ${rate.quoteCurrency}`}
+              </p>
             </div>
           </div>
 
+          {/* Separador vertical */}
+          <div className="text-center border-l border-gray-600">
+            <p className="text-xs text-gray-400 mb-1">Compra</p>
+            <div className="text-center">
+              <p className="text-sm font-bold text-green-400 mb-1">
+                1 {rate.baseCurrency} =
+              </p>
+              <p className="text-lg font-bold text-green-400">
+                {rate.quoteCurrency === 'VES' ? `${rate.buy.toFixed(4)} Bs` : `${rate.buy.toFixed(4)} ${rate.quoteCurrency}`}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Acciones - 3 iconos más juntos */}
         <div className="flex items-center justify-center space-x-6 pt-2 border-t border-gray-700">
-          <button 
+          <button
             onClick={handleCalculator}
-            className="text-gray-400 hover:text-blue-400 transition-colors"
+            className="text-gray-400 hover:text-blue-400 transition-colors cursor-pointer"
             title="Abrir Calculadora"
           >
             <Calculator className="h-5 w-5 hover:scale-110 transition-transform" />
           </button>
-          
-          <button 
+
+          <button
             onClick={handleHistorical}
-            className="text-gray-400 hover:text-yellow-400 transition-colors"
+            className="text-gray-400 hover:text-yellow-400 transition-colors cursor-pointer"
             title="Ver Cotización Histórica"
           >
             <TrendingUp className="h-5 w-5 hover:scale-110 transition-transform" />
           </button>
-          
-          <button 
+
+          <button
             onClick={handleOfficialSite}
-            className="text-gray-400 hover:text-green-400 transition-colors"
+            className="text-gray-400 hover:text-green-400 transition-colors cursor-pointer"
             title="Sitio Oficial"
           >
             <Globe className="h-5 w-5 hover:scale-110 transition-transform" />
@@ -209,5 +209,3 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
     </Card>
   )
 }
-
-
