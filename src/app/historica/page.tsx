@@ -1,22 +1,54 @@
+import { promises as fs } from 'fs'
+import path from 'path'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { HistoricalChart } from '@/components/historical-chart'
 import { CurrencyTabs } from '@/components/currency-tabs'
+import { HistoricalPageClient } from './historical-page-client'
+
+/**
+ * Define la estructura para la entrada de datos históricos.
+ * Esta interfaz debe ser consistente con la usada en el cron job.
+ */
+interface HistoricalRate {
+  fecha: string
+  'bcv-usd': number
+  'bcv-euro': number
+  'binance-buy': number
+  'binance-sell': number
+}
+
+/**
+ * Lee los datos históricos desde el archivo JSON.
+ * Esta función se ejecuta en el servidor.
+ */
+async function getHistoricalData(): Promise<HistoricalRate[]> {
+  const dataFilePath = path.join(process.cwd(), 'data', 'historical-rates.json')
+  try {
+    const fileContent = await fs.readFile(dataFilePath, 'utf-8')
+    return JSON.parse(fileContent)
+  } catch (error) {
+    // Si el archivo no existe o hay un error, devuelve un array vacío.
+    console.warn('Could not read historical-rates.json. Returning empty array.')
+    return []
+  }
+}
 
 /**
  * Página de cotización histórica
  * Muestra gráficas y tendencias de las cotizaciones USDT/Bs
  * Incluye análisis temporal y comparativas
  */
-export default function HistoricalPage() {
+export default async function HistoricalPage() {
+  const historicalData = await getHistoricalData()
+
   return (
     <main className="min-h-screen bg-gray-900">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Navegación por pestañas */}
         <CurrencyTabs />
-        
+
         {/* Título de la sección */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">
@@ -45,7 +77,7 @@ export default function HistoricalPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Gráfica histórica */}
           <div className="lg:col-span-2">
-            <HistoricalChart />
+            <HistoricalPageClient data={historicalData} />
           </div>
 
           {/* Panel lateral con estadísticas */}
@@ -131,8 +163,8 @@ export default function HistoricalPage() {
             </h3>
             <div className="h-48 flex items-end justify-between space-x-1">
               {Array.from({ length: 7 }, (_, i) => (
-                <div key={i} className="flex-1 bg-blue-600 rounded-t" 
-                     style={{ height: `${Math.random() * 100 + 20}%` }}>
+                <div key={i} className="flex-1 bg-blue-600 rounded-t"
+                     style={{ height: `${Math.random() * 80 + 20}%` }}>
                 </div>
               ))}
             </div>

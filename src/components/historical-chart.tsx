@@ -1,33 +1,30 @@
 'use client'
 
+interface ChartDataPoint {
+  time: Date
+  bcv: number
+  binance: number
+}
+
+interface HistoricalChartProps {
+  /** Datos para renderizar en la gráfica */
+  data: ChartDataPoint[]
+}
+
 /**
  * Componente de gráfica histórica de cotizaciones
  * Muestra la evolución temporal de las cotizaciones USDT/Bs
  * Incluye datos de BCV y Binance P2P para comparación
  */
-export function HistoricalChart() {
-  // Datos simulados para la gráfica
-  const generateChartData = () => {
-    const points = 24 // 24 horas de datos
-    const basePrice = 37
-    const data = []
-    
-    for (let i = 0; i < points; i++) {
-      const variation = (Math.sin(i / 3) + Math.random() - 0.5) * 2
-      const bcvPrice = basePrice + variation
-      const binancePrice = bcvPrice + Math.random() * 1.5 + 0.5
-      
-      data.push({
-        time: new Date(Date.now() - (points - i) * 60 * 60 * 1000),
-        bcv: bcvPrice,
-        binance: binancePrice
-      })
-    }
-    
-    return data
+export function HistoricalChart({ data: chartData }: HistoricalChartProps) {
+  if (!chartData || chartData.length === 0) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-6 h-full flex items-center justify-center">
+        <p className="text-gray-400">No hay datos históricos para mostrar.</p>
+      </div>
+    )
   }
 
-  const chartData = generateChartData()
   const maxPrice = Math.max(...chartData.map(d => Math.max(d.bcv, d.binance)))
   const minPrice = Math.min(...chartData.map(d => Math.min(d.bcv, d.binance)))
   const priceRange = maxPrice - minPrice
@@ -60,7 +57,7 @@ export function HistoricalChart() {
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
-          
+
           {/* Price lines */}
           {/* BCV Line */}
           <polyline
@@ -73,7 +70,7 @@ export function HistoricalChart() {
               return `${x},${y}`
             }).join(' ')}
           />
-          
+
           {/* Binance Line */}
           <polyline
             fill="none"
@@ -91,7 +88,7 @@ export function HistoricalChart() {
             const x = (index / (chartData.length - 1)) * 800
             const bcvY = 256 - ((point.bcv - minPrice) / priceRange) * 200 - 28
             const binanceY = 256 - ((point.binance - minPrice) / priceRange) * 200 - 28
-            
+
             return (
               <g key={index}>
                 <circle cx={x} cy={bcvY} r="3" fill="#3b82f6" />
