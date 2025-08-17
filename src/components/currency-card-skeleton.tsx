@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card'
  */
 export function CurrencyCardSkeleton() {
   return (
-    <Card className="bg-gray-900 border-red-500 border-2 rounded-lg w-80 h-[280px] flex flex-col animate-pulse">
+    <Card className="bg-gray-900 border-red-500 border-2 rounded-lg w-full h-auto min-h-[280px] flex flex-col animate-pulse">
       {/* Header skeleton */}
       <div className="bg-red-600 p-2 flex items-center justify-center">
         <div className="flex items-center space-x-1">
