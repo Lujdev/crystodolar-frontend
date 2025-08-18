@@ -79,11 +79,13 @@ export interface CurrencyContextState {
   activeTab: 'dolar' | 'euro' | 'cripto' | 'all'
   /** Indica si ya se intentó cargar datos inicialmente */
   hasInitialLoadAttempt: boolean
+  /** Timestamp de la última actualización manual (para rate limiting) */
+  lastManualUpdate: Date | null
 }
 
 export interface CurrencyContextActions {
   /** Actualizar todas las cotizaciones */
-  refreshRates: (showToast?: boolean) => Promise<void>
+  refreshRates: (showToast?: boolean, isManualUpdate?: boolean) => Promise<void>
   /** Actualizar una cotización específica */
   updateRate: (rateId: string, newData: Partial<CryptoRate>) => void
   /** Limpiar errores */
