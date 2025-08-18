@@ -3,6 +3,7 @@ REM Script de producción con Docker para CrystoDolar (Windows)
 REM Uso: docker-prod.bat [comando]
 
 setlocal enabledelayedexpansion
+goto :start_script
 
 REM Colores para output (Windows 10+)
 set "BLUE=[94m"
@@ -58,7 +59,7 @@ goto :eof
 REM Función para construir imagen de producción
 :build_prod
 call :print_message "Construyendo imagen de producción..."
-docker-compose -f ../docker/docker-compose.prod.yml build --no-cache
+docker-compose -f docker\docker-compose.prod.yml build --no-cache
 if %errorlevel% equ 0 (
     call :print_success "Imagen de producción construida exitosamente"
 ) else (
@@ -69,7 +70,7 @@ goto :eof
 REM Función para iniciar servicios de producción
 :start_prod
 call :print_message "Iniciando servicios de producción..."
-docker-compose -f ../docker/docker-compose.prod.yml up -d
+docker-compose -f docker\docker-compose.prod.yml up -d
 if %errorlevel% equ 0 (
     call :print_success "Servicios de producción iniciados"
     call :print_message "Aplicación disponible en http://localhost:3000"
@@ -81,7 +82,7 @@ goto :eof
 REM Función para detener servicios
 :stop_prod
 call :print_message "Deteniendo servicios de producción..."
-docker-compose -f ../docker/docker-compose.prod.yml down
+docker-compose -f docker\docker-compose.prod.yml down
 if %errorlevel% equ 0 (
     call :print_success "Servicios detenidos"
 ) else (
@@ -92,7 +93,7 @@ goto :eof
 REM Función para reiniciar servicios
 :restart_prod
 call :print_message "Reiniciando servicios de producción..."
-docker-compose -f ../docker/docker-compose.prod.yml restart
+docker-compose -f docker\docker-compose.prod.yml restart
 if %errorlevel% equ 0 (
     call :print_success "Servicios reiniciados"
 ) else (
@@ -103,7 +104,7 @@ goto :eof
 REM Función para mostrar logs
 :show_logs
 call :print_message "Mostrando logs de los servicios de producción..."
-docker-compose -f ../docker/docker-compose.prod.yml logs -f
+docker-compose -f docker\docker-compose.prod.yml logs -f
 goto :eof
 
 REM Función para despliegue completo
@@ -130,12 +131,12 @@ goto :eof
 REM Función para verificar salud
 :check_health
 call :print_message "Verificando salud de los servicios..."
-docker-compose -f ../docker/docker-compose.prod.yml ps | findstr "Up" >nul
+docker-compose -f docker\docker-compose.prod.yml ps | findstr "Up" >nul
 if %errorlevel% equ 0 (
     call :print_success "Servicios funcionando correctamente"
 ) else (
     call :print_error "Algunos servicios no están funcionando"
-    docker-compose -f ../docker/docker-compose.prod.yml ps
+    docker-compose -f docker\docker-compose.prod.yml ps
     exit /b 1
 )
 
@@ -153,13 +154,13 @@ REM Función para monitorear
 call :print_message "Monitoreando servicios de producción..."
 echo.
 echo === Estado de los Contenedores ===
-docker-compose -f ../docker/docker-compose.prod.yml ps
+docker-compose -f docker\docker-compose.prod.yml ps
 echo.
 echo === Uso de Recursos ===
 docker stats --no-stream
 echo.
 echo === Logs Recientes ===
-docker-compose -f ../docker/docker-compose.prod.yml logs --tail=20
+docker-compose -f docker\docker-compose.prod.yml logs --tail=20
 goto :eof
 
 REM Función para crear backup
@@ -178,7 +179,7 @@ call :print_warning "¿Estás seguro de que quieres limpiar todo? (y/N)"
 set /p response=
 if /i "!response!"=="y" (
     call :print_message "Limpiando contenedores, imágenes y volúmenes..."
-    docker-compose -f ../docker/docker-compose.prod.yml down -v --rmi all
+    docker-compose -f docker\docker-compose.prod.yml down -v --rmi all
     docker system prune -f
     call :print_success "Limpieza completada"
 ) else (
@@ -222,11 +223,7 @@ if %errorlevel% neq 0 (
 )
 goto :eof
 
-REM Inicio del script
-:start
+:start_script
 call :check_docker
+if %errorlevel% neq 0 exit /b %errorlevel%
 call :main %*
-exit /b %errorlevel%
-
-REM Llamar a start si no hay argumentos
-if "%~1"=="" goto :start

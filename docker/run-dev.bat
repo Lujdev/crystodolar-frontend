@@ -11,6 +11,14 @@ if not exist "package.json" (
     exit /b 1
 )
 
+REM Verificar que Docker Desktop esté ejecutándose
+docker info >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Error: Docker Desktop no está ejecutándose
+    echo Por favor inicia Docker Desktop y vuelve a intentar
+    exit /b 1
+)
+
 REM Comandos disponibles
 if "%~1"=="build" (
     echo Construyendo imagen de desarrollo...

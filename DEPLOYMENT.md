@@ -75,7 +75,7 @@ Vercel detecta automáticamente que es un proyecto Next.js:
 
 ```bash
 # Instalar Vercel CLI
-npm i -g vercel
+pnpm add -g vercel
 
 # Desplegar
 vercel
