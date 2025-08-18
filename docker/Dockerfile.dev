@@ -9,11 +9,8 @@ RUN apk add --no-cache libc6-compat curl
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Instalar pnpm usando el instalador oficial (más rápido y confiable)
-RUN curl -fsSL https://get.pnpm.io/install.sh | sh -
-
-# Agregar pnpm al PATH
-ENV PATH="/root/.local/share/pnpm:$PATH"
+# Instalar pnpm usando npm (más compatible con Alpine)
+RUN npm install -g pnpm@latest
 
 # Copiar archivos de dependencias
 COPY package.json pnpm-lock.yaml* ./

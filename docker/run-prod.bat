@@ -4,6 +4,14 @@ REM Uso: docker\run-prod.bat [comando]
 
 echo [CrystoDolar Docker PROD] Iniciando servicios de producción...
 
+REM Verificar que Docker Desktop esté ejecutándose
+docker info >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Error: Docker Desktop no está ejecutándose o no está instalado.
+    echo Por favor, inicia Docker Desktop e intenta nuevamente.
+    exit /b 1
+)
+
 REM Verificar que estamos en la raíz del proyecto
 if not exist "package.json" (
     echo Error: Este script debe ejecutarse desde la raíz del proyecto
