@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { CryptoContextProvider } from "@/lib/crypto-context";
 import { Toaster } from "sonner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
  * Layout principal de CrystoDolar
  * Incluye el proveedor CryptoContext para estado global de cotizaciones USDT/Bs
  * Configurado para mercado fiat/crypto venezolano
+ * Integrado con Vercel Speed Insights para monitoreo de rendimiento
  */
 export default function RootLayout({
   children,
@@ -38,6 +40,7 @@ export default function RootLayout({
             closeButton
             duration={3000}
           />
+          <SpeedInsights />
         </div>
       </body>
     </html>

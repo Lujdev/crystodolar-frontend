@@ -26,7 +26,7 @@ async function getHistoricalData(): Promise<HistoricalRate[]> {
   try {
     const fileContent = await fs.readFile(dataFilePath, 'utf-8')
     return JSON.parse(fileContent)
-  } catch (error) {
+  } catch {
     // Si el archivo no existe o hay un error, devuelve un array vacío.
     console.warn('Could not read historical-rates.json. Returning empty array.')
     return []
