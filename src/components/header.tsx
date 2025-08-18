@@ -1,6 +1,6 @@
 'use client'
 
-import { TrendingUp, RefreshCw, Clock, AlertCircle } from 'lucide-react'
+import { TrendingUp, RefreshCw, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCryptoContext } from '@/lib/crypto-context'
 import Image from 'next/image'
@@ -55,17 +55,6 @@ export function Header() {
   const handleRefresh = async () => {
     if (!canUpdate) {
       // Mostrar toast informativo sobre el rate limiting
-      const minutes = Math.floor(timeRemaining / 60)
-      const seconds = timeRemaining % 60
-      let timeText = ''
-      
-      if (minutes > 0) {
-        timeText = `${minutes} minuto${minutes > 1 ? 's' : ''} y ${seconds} segundo${seconds !== 1 ? 's' : ''}`
-      } else {
-        timeText = `${seconds} segundo${seconds !== 1 ? 's' : ''}`
-      }
-      
-      // Usar toast.error para mostrar el mensaje de rate limiting
       // Esto se maneja en el contexto, pero aquí podemos mejorar la UX
       return
     }
