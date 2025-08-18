@@ -105,8 +105,8 @@ CrystoDolar es una aplicación web moderna desarrollada en Next.js que proporcio
 ### Opción 1: Instalación Local (Tradicional)
 
 #### Prerrequisitos
-- **Node.js** 18.17 o superior
-- **pnpm** (recomendado) o npm
+- **Node.js** 22.17 o superior (LTS)
+- **pnpm** - Gestor de paquetes exclusivo
 - **Git** para clonar el repositorio
 
 #### Instalación Local
@@ -327,7 +327,7 @@ POST /api/rates/update
 
 ```bash
 # Instalar Vercel CLI
-npm i -g vercel
+pnpm add -g vercel
 
 # Desplegar
 vercel --prod
