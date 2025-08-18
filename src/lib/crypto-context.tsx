@@ -21,6 +21,7 @@ type CurrencyAction =
   | { type: 'SET_ONLINE_STATUS'; payload: boolean }
   | { type: 'SET_ACTIVE_TAB'; payload: 'dolar' | 'euro' | 'cripto' | 'all' }
   | { type: 'SET_INITIAL_LOAD_ATTEMPT'; payload: boolean }
+  | { type: 'SET_LAST_MANUAL_UPDATE'; payload: Date | null }
 
 // Estado inicial del contexto
 const initialState: CurrencyContextState = {
@@ -30,7 +31,8 @@ const initialState: CurrencyContextState = {
   lastUpdate: null,
   isOnline: true,
   activeTab: 'all',
-  hasInitialLoadAttempt: false
+  hasInitialLoadAttempt: false,
+  lastManualUpdate: null
 }
 
 /**
@@ -75,6 +77,9 @@ function cryptoReducer(state: CurrencyContextState, action: CurrencyAction): Cur
     
     case 'SET_INITIAL_LOAD_ATTEMPT':
       return { ...state, hasInitialLoadAttempt: action.payload }
+    
+    case 'SET_LAST_MANUAL_UPDATE':
+      return { ...state, lastManualUpdate: action.payload }
     
     default:
       return state
@@ -144,12 +149,32 @@ export function CryptoContextProvider({ children }: { children: React.ReactNode 
   /**
    * Función principal para actualizar cotizaciones desde la API
    * Usa el nuevo endpoint /api/v1/rates/current
+   * Incluye rate limiting de 2 minutos para actualizaciones manuales
    */
-  const refreshRates = useCallback(async (showToast: boolean = false) => {
+  const refreshRates = useCallback(async (showToast: boolean = false, isManualUpdate: boolean = false) => {
     try {
+      // Rate limiting para actualizaciones manuales
+      if (isManualUpdate && state.lastManualUpdate) {
+        const timeSinceLastUpdate = Date.now() - state.lastManualUpdate.getTime()
+        const minInterval = 2 * 60 * 1000 // 2 minutos en milisegundos
+        
+        if (timeSinceLastUpdate < minInterval) {
+          toast.error('Actualización no disponible', {
+            description: 'Por favor, espera un momento antes de intentar actualizar nuevamente.',
+            duration: 4000,
+          })
+          return
+        }
+      }
+
       dispatch({ type: 'SET_LOADING', payload: true })
       dispatch({ type: 'SET_ERROR', payload: null })
       dispatch({ type: 'SET_INITIAL_LOAD_ATTEMPT', payload: true })
+      
+      // Si es una actualización manual, registrar el timestamp
+      if (isManualUpdate) {
+        dispatch({ type: 'SET_LAST_MANUAL_UPDATE', payload: new Date() })
+      }
       
       const apiBaseRaw = process.env.NEXT_PUBLIC_API_BASE_URL || ''
       const apiBase = apiBaseRaw.replace(/\/+$/, '')
@@ -186,7 +211,7 @@ export function CryptoContextProvider({ children }: { children: React.ReactNode 
         })
       }
     }
-  }, [])
+  }, [state.lastManualUpdate])
 
   /**
    * Función para actualizar una cotización específica
@@ -220,7 +245,7 @@ export function CryptoContextProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     // Solo cargar si no hay tasas y no se ha intentado cargar antes
     if (state.rates.length === 0 && !state.hasInitialLoadAttempt) {
-      refreshRates(false)
+      refreshRates(false, false)
     }
   }, [refreshRates, state.rates.length, state.hasInitialLoadAttempt])
 
@@ -284,7 +309,8 @@ export function useCryptoState(): CurrencyContextState {
     lastUpdate: context.lastUpdate,
     isOnline: context.isOnline,
     activeTab: context.activeTab,
-    hasInitialLoadAttempt: context.hasInitialLoadAttempt
+    hasInitialLoadAttempt: context.hasInitialLoadAttempt,
+    lastManualUpdate: context.lastManualUpdate
   }
 }
 
