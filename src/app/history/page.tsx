@@ -134,7 +134,7 @@ export default function HistoryPage() {
         const fallbackData = await fallbackResponse.json();
         
         // Transform fallback data to match API structure
-        let transformedData: HistoricalRate[] = fallbackData.map((item: any, index: number) => ({
+        let transformedData: HistoricalRate[] = fallbackData.map((item: { 'bcv-usd': number; fecha: string }, index: number) => ({
           id: index + 1,
           exchange_code: 'BCV',
           currency_pair: 'USD/VES',

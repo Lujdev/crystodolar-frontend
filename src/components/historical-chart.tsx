@@ -46,7 +46,7 @@ interface HistoricalChartProps {
 }
 
 export function HistoricalChart({ data, startDate, endDate }: HistoricalChartProps) {
-  const chartRef = useRef<ChartJS<'line'> | null>(null);
+  const chartRef = useRef<ChartJS<'line', { x: string; y: number; }[], unknown> | null>(null);
 
   // Group data by exchange and currency pair
   const groupedData = data.reduce((acc, rate) => {
@@ -132,37 +132,34 @@ export function HistoricalChart({ data, startDate, endDate }: HistoricalChartPro
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    interaction: {
-      mode: 'index' as const,
-      intersect: false,
-    },
     plugins: {
-      title: {
-        display: true,
-        text: `Historical Exchange Rates${getDateRangeText() ? ` (${getDateRangeText()})` : ''} - Stepped Line Chart`,
-        color: '#f3f4f6',
-        font: {
-          size: 18,
-          weight: 'bold' as const,
-        },
-      },
       legend: {
-        display: true,
         position: 'top' as const,
         labels: {
           color: '#d1d5db',
           usePointStyle: true,
-          padding: 20,
+          pointStyle: 'line',
+        },
+      },
+      title: {
+        display: true,
+        text: `Historical Exchange Rates - Stepped Line Chart${startDate && endDate ? ` (${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()})` : ''}`,
+        color: '#f3f4f6',
+        font: {
+          size: 16,
+          weight: 'bold' as const,
         },
       },
       tooltip: {
-        backgroundColor: 'rgba(17, 24, 39, 0.95)',
+        mode: 'index' as const,
+        intersect: false,
+        backgroundColor: '#1f2937',
         titleColor: '#f3f4f6',
         bodyColor: '#d1d5db',
         borderColor: '#374151',
         borderWidth: 1,
         callbacks: {
-          title: function(context: any) {
+          title: function(context: Array<{ parsed: { x: number } }>) {
             const date = new Date(context[0].parsed.x);
             return date.toLocaleDateString('en-US', {
               year: 'numeric',
@@ -172,9 +169,9 @@ export function HistoricalChart({ data, startDate, endDate }: HistoricalChartPro
               minute: '2-digit',
             });
           },
-          label: function(context: any) {
+          label: function(context: { parsed: { y: number }; dataset: { label?: string } }) {
             const value = context.parsed.y;
-            return `${context.dataset.label}: ${value.toFixed(2)} VES`;
+            return `${context.dataset.label || 'Unknown'}: ${value.toFixed(2)} VES`;
           },
         },
       },
@@ -183,7 +180,7 @@ export function HistoricalChart({ data, startDate, endDate }: HistoricalChartPro
       x: {
         type: 'time' as const,
         time: {
-          unit: getTimeUnit() as any,
+          unit: getTimeUnit() as 'day' | 'week' | 'month',
           displayFormats: {
             day: 'MMM dd',
             week: 'MMM dd',
@@ -213,8 +210,8 @@ export function HistoricalChart({ data, startDate, endDate }: HistoricalChartPro
         },
         ticks: {
           color: '#9ca3af',
-          callback: function(value: any) {
-            return `${value.toFixed(2)} VES`;
+          callback: function(value: string | number) {
+            return `${Number(value).toFixed(2)} VES`;
           },
         },
         title: {
@@ -224,12 +221,18 @@ export function HistoricalChart({ data, startDate, endDate }: HistoricalChartPro
         },
       },
     },
+    interaction: {
+      mode: 'nearest' as const,
+      axis: 'x' as const,
+      intersect: false,
+    },
   };
 
   useEffect(() => {
+    const chart = chartRef.current;
     return () => {
-      if (chartRef.current) {
-        chartRef.current.destroy();
+      if (chart) {
+        chart.destroy();
       }
     };
   }, []);
