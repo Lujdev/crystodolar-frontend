@@ -83,7 +83,7 @@ export default function HistoryPage() {
       
       // Note: The API documentation doesn't show date filtering parameters,
       // but we'll implement client-side filtering for now
-      let url = `${baseUrl}/api/v1/rates/history`;
+      let url = `${baseUrl}api/v1/rates/history`;
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
