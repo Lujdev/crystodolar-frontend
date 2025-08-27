@@ -113,7 +113,7 @@ export function Header() {
             {/* Navegación a cotización histórica - Visible en móvil y desktop */}
             <div className="flex items-center space-x-2">
               <button 
-                onClick={() => window.location.href = '/historica'}
+                onClick={() => window.location.href = '/history'}
                 className="flex items-center space-x-1 sm:space-x-2 text-sm text-gray-300 hover:text-blue-400 transition-colors"
               >
                 <TrendingUp className="h-4 w-4" />

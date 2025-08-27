@@ -66,7 +66,7 @@ export function CurrencyCard({ rate }: CurrencyCardProps) {
   }
 
   const handleHistorical = () => {
-    window.location.href = '/historica'
+    window.location.href = '/history'  // Changed from '/historico' to '/history'
   }
 
   const handleOfficialSite = () => {
