@@ -1,137 +1,276 @@
-'use client'
+'use client';
 
-interface ChartDataPoint {
-  time: Date
-  bcv: number
-  binance: number
+import { useEffect, useRef } from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  TimeScale,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+import 'chartjs-adapter-date-fns';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  TimeScale
+);
+
+interface HistoricalRate {
+  id: number;
+  exchange_code: string;
+  currency_pair: string;
+  buy_price: number;
+  sell_price: number;
+  avg_price: number;
+  timestamp: string; // ISO format
+  source: string;
+  trade_type: string;
 }
 
 interface HistoricalChartProps {
-  /** Datos para renderizar en la gráfica */
-  data: ChartDataPoint[]
+  data: HistoricalRate[];
+  startDate?: string;
+  endDate?: string;
 }
 
-/**
- * Componente de gráfica histórica de cotizaciones
- * Muestra la evolución temporal de las cotizaciones USDT/Bs
- * Incluye datos de BCV y Binance P2P para comparación
- */
-export function HistoricalChart({ data: chartData }: HistoricalChartProps) {
-  if (!chartData || chartData.length === 0) {
-    return (
-      <div className="bg-gray-800 rounded-lg p-6 h-full flex items-center justify-center">
-        <p className="text-gray-400">No hay datos históricos para mostrar.</p>
-      </div>
-    )
-  }
+export function HistoricalChart({ data, startDate, endDate }: HistoricalChartProps) {
+  const chartRef = useRef<ChartJS<'line'> | null>(null);
 
-  const maxPrice = Math.max(...chartData.map(d => Math.max(d.bcv, d.binance)))
-  const minPrice = Math.min(...chartData.map(d => Math.min(d.bcv, d.binance)))
-  const priceRange = maxPrice - minPrice
+  // Group data by exchange and currency pair
+  const groupedData = data.reduce((acc, rate) => {
+    const key = `${rate.exchange_code}-${rate.currency_pair}`;
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(rate);
+    return acc;
+  }, {} as Record<string, HistoricalRate[]>);
+
+  // Sort each group by timestamp
+  Object.keys(groupedData).forEach(key => {
+    groupedData[key].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  });
+
+  // Define colors for different data series
+  const colors = {
+    'BCV-USD/VES': { border: '#3b82f6', background: '#3b82f620' },
+    'BCV-EUR/VES': { border: '#10b981', background: '#10b98120' },
+    'BINANCE_P2P-USDT/VES': { border: '#f59e0b', background: '#f59e0b20' },
+  };
+
+  // Create datasets for the chart with stepped lines by default
+  const datasets = Object.entries(groupedData).map(([key, rates]) => {
+    const [exchange, pair] = key.split('-');
+    const color = colors[key as keyof typeof colors] || { border: '#6b7280', background: '#6b728020' };
+    
+    return {
+      label: `${exchange} ${pair}`,
+      data: rates.map(rate => ({
+        x: rate.timestamp,
+        y: rate.avg_price || rate.buy_price,
+      })),
+      borderColor: color.border,
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      fill: false,
+      tension: 0,
+      stepped: 'before' as const,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      pointBackgroundColor: color.border,
+      pointBorderColor: '#ffffff',
+      pointBorderWidth: 1,
+    };
+  });
+
+  const chartData = {
+    datasets,
+  };
+
+  // Calculate date range for chart title
+  const getDateRangeText = () => {
+    if (startDate && endDate) {
+      const start = new Date(startDate).toLocaleDateString();
+      const end = new Date(endDate).toLocaleDateString();
+      return `${start} - ${end}`;
+    }
+    if (data.length > 0) {
+      const timestamps = data.map(d => new Date(d.timestamp).getTime());
+      const start = new Date(Math.min(...timestamps)).toLocaleDateString();
+      const end = new Date(Math.max(...timestamps)).toLocaleDateString();
+      return `${start} - ${end}`;
+    }
+    return '';
+  };
+
+  // Determine appropriate time unit based on date range
+  const getTimeUnit = () => {
+    if (!startDate || !endDate) return 'day';
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 7) return 'day';
+    if (diffDays <= 30) return 'day';
+    if (diffDays <= 90) return 'week';
+    return 'month';
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
+    plugins: {
+      title: {
+        display: true,
+        text: `Historical Exchange Rates${getDateRangeText() ? ` (${getDateRangeText()})` : ''} - Stepped Line Chart`,
+        color: '#f3f4f6',
+        font: {
+          size: 18,
+          weight: 'bold' as const,
+        },
+      },
+      legend: {
+        display: true,
+        position: 'top' as const,
+        labels: {
+          color: '#d1d5db',
+          usePointStyle: true,
+          padding: 20,
+        },
+      },
+      tooltip: {
+        backgroundColor: 'rgba(17, 24, 39, 0.95)',
+        titleColor: '#f3f4f6',
+        bodyColor: '#d1d5db',
+        borderColor: '#374151',
+        borderWidth: 1,
+        callbacks: {
+          title: function(context: any) {
+            const date = new Date(context[0].parsed.x);
+            return date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            });
+          },
+          label: function(context: any) {
+            const value = context.parsed.y;
+            return `${context.dataset.label}: ${value.toFixed(2)} VES`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        type: 'time' as const,
+        time: {
+          unit: getTimeUnit() as any,
+          displayFormats: {
+            day: 'MMM dd',
+            week: 'MMM dd',
+            month: 'MMM yyyy',
+          },
+        },
+        min: startDate ? new Date(startDate).toISOString() : undefined,
+        max: endDate ? new Date(endDate + 'T23:59:59.999Z').toISOString() : undefined,
+        grid: {
+          color: '#374151',
+          drawBorder: false,
+        },
+        ticks: {
+          color: '#9ca3af',
+          maxTicksLimit: 10,
+        },
+        title: {
+          display: true,
+          text: 'Date',
+          color: '#d1d5db',
+        },
+      },
+      y: {
+        grid: {
+          color: '#374151',
+          drawBorder: false,
+        },
+        ticks: {
+          color: '#9ca3af',
+          callback: function(value: any) {
+            return `${value.toFixed(2)} VES`;
+          },
+        },
+        title: {
+          display: true,
+          text: 'Price (VES)',
+          color: '#d1d5db',
+        },
+      },
+    },
+  };
+
+  useEffect(() => {
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+      }
+    };
+  }, []);
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-white">
-          Evolución USDT/Bs - Últimas 24 horas
-        </h2>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span className="text-sm text-gray-400">BCV</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <span className="text-sm text-gray-400">Binance P2P</span>
-          </div>
-        </div>
+    <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
+      {/* Chart */}
+      <div className="h-96 w-full">
+        <Line ref={chartRef} data={chartData} options={options} />
       </div>
-
-      {/* Gráfica SVG */}
-      <div className="relative h-64 w-full bg-gray-900 rounded-lg overflow-hidden">
-        <svg className="w-full h-full" viewBox="0 0 800 256">
-          {/* Grid lines */}
-          <defs>
-            <pattern id="grid" width="40" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 32" fill="none" stroke="#374151" strokeWidth="0.5" opacity="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-
-          {/* Price lines */}
-          {/* BCV Line */}
-          <polyline
-            fill="none"
-            stroke="#3b82f6"
-            strokeWidth="2"
-            points={chartData.map((point, index) => {
-              const x = (index / (chartData.length - 1)) * 800
-              const y = 256 - ((point.bcv - minPrice) / priceRange) * 200 - 28
-              return `${x},${y}`
-            }).join(' ')}
-          />
-
-          {/* Binance Line */}
-          <polyline
-            fill="none"
-            stroke="#eab308"
-            strokeWidth="2"
-            points={chartData.map((point, index) => {
-              const x = (index / (chartData.length - 1)) * 800
-              const y = 256 - ((point.binance - minPrice) / priceRange) * 200 - 28
-              return `${x},${y}`
-            }).join(' ')}
-          />
-
-          {/* Data points */}
-          {chartData.map((point, index) => {
-            const x = (index / (chartData.length - 1)) * 800
-            const bcvY = 256 - ((point.bcv - minPrice) / priceRange) * 200 - 28
-            const binanceY = 256 - ((point.binance - minPrice) / priceRange) * 200 - 28
-
-            return (
-              <g key={index}>
-                <circle cx={x} cy={bcvY} r="3" fill="#3b82f6" />
-                <circle cx={x} cy={binanceY} r="3" fill="#eab308" />
-              </g>
-            )
-          })}
-        </svg>
-
-        {/* Price labels */}
-        <div className="absolute top-0 left-0 h-full flex flex-col justify-between py-4 text-xs text-gray-400">
-          <span>${maxPrice.toFixed(2)}</span>
-          <span>${((maxPrice + minPrice) / 2).toFixed(2)}</span>
-          <span>${minPrice.toFixed(2)}</span>
+      
+      {/* Data summary */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+        <div className="bg-gray-700 rounded p-3">
+          <div className="text-gray-400">Total Records</div>
+          <div className="text-xl font-bold text-white">{data.length}</div>
         </div>
-
-        {/* Time labels */}
-        <div className="absolute bottom-0 left-0 w-full flex justify-between px-4 text-xs text-gray-400">
-          <span>00:00</span>
-          <span>06:00</span>
-          <span>12:00</span>
-          <span>18:00</span>
-          <span>24:00</span>
+        <div className="bg-gray-700 rounded p-3">
+          <div className="text-gray-400">Exchanges</div>
+          <div className="text-xl font-bold text-white">{Object.keys(groupedData).length}</div>
         </div>
-      </div>
-
-      {/* Información actual */}
-      <div className="mt-6 grid grid-cols-2 gap-4">
-        <div className="bg-gray-900 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-1">BCV Actual</div>
-          <div className="text-2xl font-bold text-blue-400">
-            ${chartData[chartData.length - 1]?.bcv.toFixed(2)}
+        <div className="bg-gray-700 rounded p-3">
+          <div className="text-gray-400">Date Range</div>
+          <div className="text-sm text-white">
+            {getDateRangeText() || 'No data'}
           </div>
-          <div className="text-xs text-green-400">+0.8% hoy</div>
         </div>
-        <div className="bg-gray-900 rounded-lg p-4">
-          <div className="text-sm text-gray-400 mb-1">Binance P2P Actual</div>
-          <div className="text-2xl font-bold text-yellow-400">
-            ${chartData[chartData.length - 1]?.binance.toFixed(2)}
+        <div className="bg-gray-700 rounded p-3">
+          <div className="text-gray-400">Latest Price</div>
+          <div className="text-sm text-white">
+            {data.length > 0 && (
+              <>
+                {(data[0].avg_price || data[0].buy_price).toFixed(2)} VES
+                <div className="text-xs text-gray-400">
+                  {data[0].exchange_code} {data[0].currency_pair}
+                </div>
+              </>
+            )}
           </div>
-          <div className="text-xs text-red-400">-0.3% hoy</div>
         </div>
       </div>
     </div>
-  )
+  );
 }
