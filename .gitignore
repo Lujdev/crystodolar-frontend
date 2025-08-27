@@ -2,14 +2,8 @@
 
 # dependencies
 /node_modules
-/.cursor
 /.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+.pnp.js
 
 # testing
 /coverage
@@ -26,13 +20,12 @@
 *.pem
 
 # debug
-npm-debug.log*
+pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env
+# local env files
+.env*.local
 
 # vercel
 .vercel
@@ -40,3 +33,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+
+# pnpm
+.pnpm-store/
+
+#Editores
+/.cursor

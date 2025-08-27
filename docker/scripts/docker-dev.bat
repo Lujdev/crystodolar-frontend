@@ -4,31 +4,27 @@ REM Uso: docker-dev.bat [comando]
 
 setlocal enabledelayedexpansion
 
-REM Colores para output (Windows 10+)
-set "BLUE=[94m"
-set "GREEN=[92m"
-set "YELLOW=[93m"
-set "RED=[91m"
-set "NC=[0m"
+REM Saltar a la lógica principal
+goto :start_script
 
 REM Función para mostrar mensajes
 :print_message
-echo %BLUE%[CrystoDolar Docker]%NC% %~1
+echo [CrystoDolar Docker] %~1
 goto :eof
 
 REM Función para mostrar éxito
 :print_success
-echo %GREEN%✅ %~1%NC%
+echo ✅ %~1
 goto :eof
 
 REM Función para mostrar advertencia
 :print_warning
-echo %YELLOW%⚠️  %~1%NC%
+echo ⚠️  %~1
 goto :eof
 
 REM Función para mostrar error
 :print_error
-echo %RED%❌ %~1%NC%
+echo ❌ %~1
 goto :eof
 
 REM Función para mostrar ayuda
@@ -56,7 +52,7 @@ goto :eof
 REM Función para construir imagen
 :build_dev
 call :print_message "Construyendo imagen de desarrollo..."
-docker-compose -f docker-compose.dev.yml build
+docker-compose -f docker\docker-compose.dev.yml build
 if %errorlevel% equ 0 (
     call :print_success "Imagen construida exitosamente"
 ) else (
@@ -67,7 +63,7 @@ goto :eof
 REM Función para iniciar servicios
 :start_dev
 call :print_message "Iniciando servicios de desarrollo..."
-docker-compose -f docker-compose.dev.yml up -d
+docker-compose -f docker\docker-compose.dev.yml up -d
 if %errorlevel% equ 0 (
     call :print_success "Servicios iniciados en http://localhost:3000"
     call :print_message "Para ver logs: %~nx0 logs"
@@ -79,7 +75,7 @@ goto :eof
 REM Función para detener servicios
 :stop_dev
 call :print_message "Deteniendo servicios..."
-docker-compose -f docker-compose.dev.yml down
+docker-compose -f docker\docker-compose.dev.yml down
 if %errorlevel% equ 0 (
     call :print_success "Servicios detenidos"
 ) else (
@@ -90,7 +86,7 @@ goto :eof
 REM Función para reiniciar servicios
 :restart_dev
 call :print_message "Reiniciando servicios..."
-docker-compose -f docker-compose.dev.yml restart
+docker-compose -f docker\docker-compose.dev.yml restart
 if %errorlevel% equ 0 (
     call :print_success "Servicios reiniciados"
 ) else (
@@ -101,13 +97,13 @@ goto :eof
 REM Función para mostrar logs
 :show_logs
 call :print_message "Mostrando logs de los servicios..."
-docker-compose -f docker-compose.dev.yml logs -f
+docker-compose -f docker\docker-compose.dev.yml logs -f
 goto :eof
 
 REM Función para abrir shell
 :open_shell
 call :print_message "Abriendo shell en el contenedor..."
-docker-compose -f docker-compose.dev.yml exec crystodolar-frontend /bin/sh
+docker-compose -f docker\docker-compose.dev.yml exec crystodolar-frontend /bin/sh
 goto :eof
 
 REM Función para limpiar
@@ -116,7 +112,7 @@ call :print_warning "¿Estás seguro de que quieres limpiar todo? (y/N)"
 set /p response=
 if /i "!response!"=="y" (
     call :print_message "Limpiando contenedores, imágenes y volúmenes..."
-    docker-compose -f docker-compose.dev.yml down -v --rmi all
+    docker-compose -f docker\docker-compose.dev.yml down -v --rmi all
     docker system prune -f
     call :print_success "Limpieza completada"
 ) else (
@@ -127,7 +123,7 @@ goto :eof
 REM Función para verificar estado
 :check_status
 call :print_message "Verificando estado de los servicios..."
-docker-compose -f docker-compose.dev.yml ps
+docker-compose -f docker\docker-compose.dev.yml ps
 goto :eof
 
 REM Función principal
@@ -146,10 +142,9 @@ if "%~1"=="help" goto :show_help
 
 REM Comando no reconocido
 call :print_error "Comando no reconocido: %~1"
-call :show_help
-exit /b 1
+goto :show_help
 
-REM Verificar si Docker está instalado
+REM Verificar si Docker está instalado y ejecutándose
 :check_docker
 docker --version >nul 2>&1
 if %errorlevel% neq 0 (
@@ -162,10 +157,17 @@ if %errorlevel% neq 0 (
     call :print_error "Docker Compose no está instalado. Por favor instala Docker Compose primero."
     exit /b 1
 )
+
+REM Verificar que Docker Desktop esté ejecutándose
+docker info >nul 2>&1
+if %errorlevel% neq 0 (
+    call :print_error "Docker Desktop no está ejecutándose. Por favor inicia Docker Desktop y vuelve a intentar."
+    exit /b 1
+)
 goto :eof
 
-REM Inicio del script
-:start
+REM Lógica principal del script
+:start_script
 call :check_docker
+if %errorlevel% neq 0 exit /b %errorlevel%
 call :main %*
-exit /b %errorlevel%

@@ -1,8 +1,16 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Configuración para Docker
+  // Configuración para Docker (comentado temporalmente para desarrollo)
   output: 'standalone',
+
+  // Configuración experimental para optimización de CSS
+  experimental: {
+    // CSS inline para eliminar solicitudes que bloquean el renderizado
+    inlineCss: true,
+    // Optimización de CSS chunking para reducir el número de archivos CSS
+    cssChunking: 'strict',
+  },
 
   // Configuración de imágenes
   images: {
@@ -51,7 +59,7 @@ const nextConfig: NextConfig = {
   },
 
   // Configuración de webpack
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     // Configuración específica para el cliente
     if (!isServer) {
       config.resolve.fallback = {
@@ -60,6 +68,26 @@ const nextConfig: NextConfig = {
         net: false,
         tls: false,
       };
+
+      // Optimizaciones para CSS en producción
+      if (!dev) {
+        // Minimizar CSS
+        config.optimization.minimize = true;
+        
+        // Split chunks para CSS
+        config.optimization.splitChunks = {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks.cacheGroups,
+            styles: {
+              name: 'styles',
+              test: /\.(css|scss)$/,
+              chunks: 'all',
+              enforce: true,
+            },
+          },
+        };
+      }
     }
 
     return config;
